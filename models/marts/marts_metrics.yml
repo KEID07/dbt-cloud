@@ -1,0 +1,10 @@
+metrics:
+  - name: completed_revenue
+    label: "已完成订单营收"
+    description: "仅计算状态为 'shipped' 或 'completed' 的订单总额"
+    type: simple
+    type_params:
+      measure: order_total
+    # --- 核心代码：过滤器 ---
+    filter: |
+      {{ Dimension('customer__status') }} = 'shipped'

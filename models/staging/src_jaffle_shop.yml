@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: jaffle_shop   # 这个名字必须和 source() 函数里的第一个参数一致
+    catalog: raw           # <--- 关键！检查是否有这一行且拼写正确
+    schema: jaffle_shop
+    tables:
+      - name: customers
+      - name: orders      # 这个名字必须和 source() 函数里的第二个参数一致
