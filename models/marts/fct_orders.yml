@@ -1,17 +1,18 @@
-version: 2
-
+# 1. 语义模型（顶级块）
 semantic_models:
   - name: fct_orders
     model: ref('fct_orders')
-    
-    # 1. 实体：定义关联的“键”
+    enabled: true
+    # 关键补丁：新版规范通常要求定义默认的时间维度
+    defaults:
+      agg_time_dimension: order_date
+
     entities:
       - name: order_id
         type: primary
       - name: customer
         type: foreign
 
-    # 2. 度量：定义基础的聚合逻辑（这是指标的原材料）
     measures:
       - name: order_total
         description: "订单总金额"
@@ -21,10 +22,30 @@ semantic_models:
         description: "订单总量"
         agg: count
         expr: order_id
+      - name: total_tax_amount
+        description: "总税额"
+        agg: sum
+        expr: tax_amount
 
-    # 3. 维度：定义切分指标的角度（必须包含一个时间维度）
     dimensions:
       - name: order_date
         type: time
         type_params:
           time_granularity: day
+      # 修正点：categorical 类型不需要 type_params，直接定义即可
+      - name: status
+        type: categorical
+
+# 2. 指标（顶级块）
+metrics:
+  - name: total_revenue
+    label: "总营收"
+    type: simple
+    type_params:
+      measure: order_total
+
+  - name: tax_collected
+    label: "实收税额"
+    type: simple
+    type_params:
+      measure: total_tax_amount
