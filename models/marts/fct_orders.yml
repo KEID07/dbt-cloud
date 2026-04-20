@@ -1,51 +1,50 @@
-# 1. 语义模型定义（顶级块）
-semantic_models:
+models:
   - name: fct_orders
-    model: ref('fct_orders')
-    enabled: true              # 解决 dbt1013 错误
-    defaults:
-      agg_time_dimension: order_date
+    # 新版核心：直接在模型上启用语义层
+    semantic_model:
+      enabled: true 
 
-    entities:
+    # 默认时间聚合维度（新版：模型属性）
+    agg_time_dimension: order_date
+
+    description: 订单模型（关联客户信息，一行一个订单）
+
+    columns:
       - name: order_id
-        type: primary
-      - name: customer
-        type: foreign
+        description: 订单唯一ID
+        # 列级别：主键实体（新版写法）
+        entity:
+          name: order
+          type: primary
 
-    measures:
-      - name: order_total
-        agg: sum
-        expr: amount
-      - name: order_count
-        agg: count
-        expr: order_id
-      - name: total_tax_amount
-        agg: sum
-        expr: tax_amount
+      - name: customer_id
+        description: 客户ID
+        # 列级别：外键实体
+        entity:
+          name: customer
+          type: foreign
 
-    dimensions:
       - name: order_date
-        type: time
-        type_params:
-          time_granularity: day
-      - name: status          # categorical 级别，不带 type_params，解决 dbt1060 错误
-        type: categorical
+        description: 订单创建日期
+        # 列级别：时间维度 + 粒度
+        granularity: day
+        dimension:
+          type: time
 
-# 2. 指标定义（顶级块）
-metrics:
-  - name: total_revenue
-    label: "总营收"
-    type: simple
-    type_params:
-      measure: order_total
+      - name: customer_name
+        description: 客户姓名
+        # 列级别：分类维度
+        dimension:
+          type: categorical
 
-  - name: average_order_value
-    label: "平均订单价"
-    type: derived
-    type_params:
-      expr: revenue / orders
-      metrics:
-        - name: total_revenue
-          alias: revenue
-        - name: order_count
-          alias: orders
+    # 新版：直接在模型内定义指标
+    metrics:
+      - name: amount
+        type: simple
+        agg: sum
+        expr: 1
+
+      - name: order_count
+        type: simple
+        agg: count
+        expr: 1
