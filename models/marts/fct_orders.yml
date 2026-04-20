@@ -1,9 +1,8 @@
-# 1. 语义模型（顶级块）
+# 1. 语义模型定义（顶级块）
 semantic_models:
   - name: fct_orders
     model: ref('fct_orders')
-    enabled: true
-    # 关键补丁：新版规范通常要求定义默认的时间维度
+    enabled: true              # 解决 dbt1013 错误
     defaults:
       agg_time_dimension: order_date
 
@@ -15,15 +14,12 @@ semantic_models:
 
     measures:
       - name: order_total
-        description: "订单总金额"
         agg: sum
         expr: amount
       - name: order_count
-        description: "订单总量"
         agg: count
         expr: order_id
       - name: total_tax_amount
-        description: "总税额"
         agg: sum
         expr: tax_amount
 
@@ -32,11 +28,10 @@ semantic_models:
         type: time
         type_params:
           time_granularity: day
-      # 修正点：categorical 类型不需要 type_params，直接定义即可
-      - name: status
+      - name: status          # categorical 级别，不带 type_params，解决 dbt1060 错误
         type: categorical
 
-# 2. 指标（顶级块）
+# 2. 指标定义（顶级块）
 metrics:
   - name: total_revenue
     label: "总营收"
@@ -44,8 +39,13 @@ metrics:
     type_params:
       measure: order_total
 
-  - name: tax_collected
-    label: "实收税额"
-    type: simple
+  - name: average_order_value
+    label: "平均订单价"
+    type: derived
     type_params:
-      measure: total_tax_amount
+      expr: revenue / orders
+      metrics:
+        - name: total_revenue
+          alias: revenue
+        - name: order_count
+          alias: orders
