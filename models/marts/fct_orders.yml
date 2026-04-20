@@ -39,12 +39,36 @@ models:
 
     # 新版：直接在模型内定义指标
     metrics:
-      - name: amount
+      - name: amount_sum
         type: simple
         agg: sum
-        expr: 1
+        expr: amount
 
       - name: order_count
         type: simple
         agg: count
         expr: 1
+
+  - name: metricflow_time_spine
+    semantic_model:
+      enabled: true
+    agg_time_dimension: date_day
+    description: 语义层标准时间主轴表
+    columns:
+      - name: date_day
+        description: 日期主键
+        entity: { name: date, type: primary }
+        granularity: day
+        dimension: { type: time }
+      - name: date_week
+        granularity: week
+        dimension: { type: time }
+      - name: date_month
+        granularity: month
+        dimension: { type: time }
+      - name: date_quarter
+        granularity: quarter
+        dimension: { type: time }
+      - name: date_year
+        granularity: year
+        dimension: { type: time }
