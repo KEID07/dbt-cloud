@@ -3,7 +3,9 @@ models:
     # 新版核心：直接在模型上启用语义层
     semantic_model:
       enabled: true 
-
+    time_spine:
+      # 标准粒度列：PowerBI识别时间主轴的核心
+      standard_granularity_column: order_date
     # 默认时间聚合维度（新版：模型属性）
     agg_time_dimension: order_date
 
