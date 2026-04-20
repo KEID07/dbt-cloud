@@ -53,7 +53,7 @@ models:
 
   - name: metricflow_time_spine
     semantic_model:
-      enabled: true
+      enabled: false
     agg_time_dimension: date_day
     description: 语义层标准时间主轴表
     columns:
